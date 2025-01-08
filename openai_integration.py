@@ -13,3 +13,14 @@ def upload_training_file(file_path):
         purpose="fine-tune"
     )
     return response
+
+def start_fine_tuning(training_file_id, model="gpt-4o-mini-2024-07-18"):
+    response = client.fine_tuning.jobs.create(
+        training_file=training_file_id,
+        model=model
+    )
+    return response
+
+def retrieve_fine_tuned_model(job_id):
+    job = client.fine_tuning.jobs.retrieve(job_id)
+    return job.fine_tuned_model
