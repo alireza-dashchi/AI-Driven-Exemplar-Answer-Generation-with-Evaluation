@@ -1,26 +1,56 @@
 import sys
 import os
+# Add the parent directory to the system path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
+
+# Set the OpenAI API key
 api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize the OpenAI client using the API key
 client = OpenAI(api_key=api_key)
 
+# Upload a training file for fine-tuning
 def upload_training_file(file_path):
-    response = client.files.create(
-        file=open(file_path, "rb"),
+    upload_response = client.files.create(
+        file=open("formatted_train_data.jsonl", "rb"),
         purpose="fine-tune"
     )
-    return response
+    return upload_response
 
+# Start a fine-tuning job with a specified training file and model
 def start_fine_tuning(training_file_id, model="gpt-4o-mini-2024-07-18"):
-    response = client.fine_tuning.jobs.create(
+    fine_tune_response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
         model=model
     )
-    return response
+    return fine_tune_response
 
+# Retrieve the fine-tuned model details using a job ID
 def retrieve_fine_tuned_model(job_id):
     job = client.fine_tuning.jobs.retrieve(job_id)
     return job.fine_tuned_model
+
+# Generate an exemplar answer using a fine-tuned model and prompt
+def generate_exemplar_answer(model_id, prompt):
+    system_instructions = "You are an expert educator creating high-quality exemplar answers based on rubrics and educational context."
+
+    try:
+        response = client.chat.completions.create(
+            model=model_id,
+            messages=[
+                {"role": "system", "content": system_instructions},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+        
+    except Exception as e:
+        print(f"Error generating answer: {e}")
+        raise
