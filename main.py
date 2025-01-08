@@ -72,3 +72,41 @@ def tune_new_model():
     
     # Step 3: Wait for fine-tuning completion and retrieve the model ID
     return wait_for_fine_tuning_completion(job_id)
+
+if __name__ == "__main__":
+    print("\nWelcome to the Exemplar Answer Generator!")
+    print("This tool is designed to help generate high-quality exemplar answers for educational tasks using a fine-tuned AI model.")
+    
+    # Initialize fine-tuned model ID if tuning is performed
+    fine_tuned_model_id = None
+    
+    while True:
+        print("\nMain Options:")
+        print("1. Generate an answer with the fine-tuned model")
+        print("2. Start Tuning a new model")
+        print("3. Evaluate model")
+        print("4. Exit")
+
+        choice = input("Enter the number of your choice: ")
+
+        if choice == '1':
+            # Use the fine-tuned model if available; otherwise, use the default model ID
+            model_id = fine_tuned_model_id if fine_tuned_model_id else DEFAULT_MODEL_ID
+            retrieve_model_and_generate(model_id)
+
+        elif choice == '2':
+            # Tune a new model and update the fine-tuned model ID
+            fine_tuned_model_id = tune_new_model()
+
+        elif choice == '3':
+            # Use the fine-tuned model ID if available for evaluation; otherwise, use the default model ID
+            model_id = fine_tuned_model_id if fine_tuned_model_id else DEFAULT_MODEL_ID
+            evaluate_model(model_id)
+
+        elif choice == '4':
+            print("Exiting the program.")
+            break
+
+        else:
+            print("Invalid choice. Please enter a number from 1 to 4.")
+
